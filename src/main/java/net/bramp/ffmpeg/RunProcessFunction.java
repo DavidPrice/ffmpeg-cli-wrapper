@@ -1,15 +1,15 @@
 package net.bramp.ffmpeg;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import org.apache.commons.io.Charsets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Joiner;
+import com.google.common.base.Preconditions;
 
 /**
  * Simple function that creates a Process with the arguments, and returns
@@ -34,7 +34,8 @@ public class RunProcessFunction implements ProcessFunction {
         ProcessBuilder builder = new ProcessBuilder(args);
         builder.redirectErrorStream(true);
         Process p = builder.start();
-        return new BufferedReader( new InputStreamReader(p.getInputStream(), Charsets.UTF_8) );
+        //Originally Charsets.UTF_8, changed to allow use with commons-io 2.2 and Java 1.5.
+        return new BufferedReader( new InputStreamReader(p.getInputStream(), "UTF-8") );
 	}
 
 }

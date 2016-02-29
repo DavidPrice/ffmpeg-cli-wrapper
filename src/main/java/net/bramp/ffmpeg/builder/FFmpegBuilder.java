@@ -56,14 +56,26 @@ public class FFmpegBuilder {
         return this.override;
     }
 
+    public int getPass() {
+        return this.pass;
+    }
+    
     public FFmpegBuilder setPass(int pass) {
         this.pass = pass;
         return this;
     }
 
+    public String getPassPrefix() {
+        return this.pass_prefix;
+    }
+    
     public FFmpegBuilder setPassPrefix(String prefix) {
         this.pass_prefix = prefix;
         return this;
+    }
+    
+    public String getInput() {
+        return this.input;
     }
 
     public FFmpegBuilder setInput(String filename) {
@@ -78,6 +90,10 @@ public class FFmpegBuilder {
         return this;
     }
 
+    public long getStartOffset() {
+        return this.startOffset.longValue();
+    }
+    
     public FFmpegBuilder setStartOffset(long duration, TimeUnit units) {
         checkNotNull(duration);
         checkNotNull(units);
