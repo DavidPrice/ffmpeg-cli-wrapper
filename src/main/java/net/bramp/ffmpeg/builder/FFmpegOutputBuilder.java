@@ -53,6 +53,7 @@ public class FFmpegOutputBuilder implements Cloneable {
     public Integer video_frames;
 	public String video_preset;
 	public String video_filter;
+	public int video_quality;
 
 	public boolean subtitle_enabled = true;
 
@@ -125,6 +126,22 @@ public class FFmpegOutputBuilder implements Cloneable {
 		this.video_enabled  = true;
 		this.video_bit_rate = bit_rate;
 		return this;
+	}
+	
+    /**
+     * Sets the quality index for VBR video output. Only useful when using VBR
+     * video, nonfunctional with constant bit rate (CBR) output.
+     * 
+     * @param quality_index
+     *            Quality index to use, from 1-31, with 1 being the highest
+     *            quality and 31 being the lowest. Values between 2 and 15 are
+     *            recommended.
+     * @return this
+     */
+	public FFmpegOutputBuilder setVideoQuality(int quality_index) {
+	    this.video_enabled = true;
+	    this.video_quality = quality_index;
+	    return this;
 	}
 
 	public FFmpegOutputBuilder setVideoCodec(String codec) {
@@ -256,7 +273,7 @@ public class FFmpegOutputBuilder implements Cloneable {
 	}
 
 	public FFmpegOutputBuilder setAudioQuality(int quality) {
-		Preconditions.checkArgument(quality >= 1 && quality <= 5);
+		Preconditions.checkArgument(quality > 0 && quality <= 7);
 		this.audio_enabled = true;
 		this.audio_quality = quality;
 		return this;
@@ -340,7 +357,7 @@ public class FFmpegOutputBuilder implements Cloneable {
 		return new EncodingOptions(
 			new MainEncodingOptions(format, startOffset, duration),
 			new AudioEncodingOptions(audio_enabled, audio_codec, audio_channels, audio_sample_rate, audio_bit_depth, audio_bit_rate, audio_quality),
-			new VideoEncodingOptions(video_enabled, video_codec, video_frame_rate, video_width, video_height, video_bit_rate, video_frames, video_filter, video_preset)
+			new VideoEncodingOptions(video_enabled, video_codec, video_frame_rate, video_width, video_height, video_bit_rate, video_frames, video_filter, video_preset, video_quality)
 		);
 	}
 
@@ -404,10 +421,19 @@ public class FFmpegOutputBuilder implements Cloneable {
 				//args.add("-r").add(String.format("%2f", video_frame_rate));
 				args.add("-r").add(video_frame_rate.toString());
 			}
+			
+			//Bit rate is a CBR option, quality is a VBR option, mutually incompatible.
+            if (video_bit_rate > 0 && video_quality > 0 && throwWarnings) {
+                throw new IllegalStateException("Video bit rate is for CBR output and video quality is for VBR output, only one can be set.");
+            }
 
-			if (video_bit_rate > 0) {
-				args.add("-b:v").add(String.format("%d", video_bit_rate));
-			}
+            if (video_bit_rate > 0) {
+                args.add("-b:v").add(String.format("%d", video_bit_rate));
+            }
+
+            if (video_quality > 0) {
+                args.add("-qscale:v").add(String.format("%d", video_quality));
+            }
 
 			if (!Strings.isNullOrEmpty(video_preset)) {
 				args.add("-vpre").add(video_preset);
@@ -416,11 +442,12 @@ public class FFmpegOutputBuilder implements Cloneable {
 			if (!Strings.isNullOrEmpty(video_filter)) {
 				args.add("-vf").add(video_filter);
 			}
+			
 
 		} else {
 			args.add("-vn");
 		}
-
+		//FIXME: This relies on the number of passes not being set and defaulting to 0, which actually means a single pass, which is confusing.
 		if (audio_enabled && pass != 1) {
 			if(!Strings.isNullOrEmpty(audio_codec)) {
 				args.add("-acodec").add(audio_codec);
@@ -448,7 +475,7 @@ public class FFmpegOutputBuilder implements Cloneable {
 			}
 
 			if (audio_quality > 0) {
-				args.add("-aq").add(String.format("%d", audio_quality));
+				args.add("-qscale:a").add(String.format("%d", audio_quality));
 			}
 
 		} else {
