@@ -2,10 +2,10 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>net.bramp.ffmpeg</groupId>
 	<artifactId>ffmpeg</artifactId>
-	<version>0.3-SNAPSHOT</version>
+	<version>0.2-java5</version>
     <packaging>jar</packaging>
 	<name>FFmpeg Wrapper</name>
-	<description>Simple Java Wrapper around the FFmpeg command line</description>
+	<description>Simple Java Wrapper around the FFmpeg command line, Java 5 fork</description>
 	<url>https://github.com/bramp/ffmpeg-cli-wrapper</url>
 
     <scm>
@@ -39,6 +39,9 @@
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+	    
+	    <maven.compiler.source>1.5</maven.compiler.source>
+	    <maven.compiler.target>1.5</maven.compiler.target>
 	</properties>
 
 	<dependencies>
@@ -47,16 +50,11 @@
 			<artifactId>slf4j-api</artifactId>
 			<version>1.6.2</version>
 		</dependency>
-		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
-			<version>2.0.2</version>
-			<scope>provided</scope>
-		</dependency>
+
 		<dependency>
 			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>15.0</version>
+		    <artifactId>guava-jdk5</artifactId>
+			<version>17.0</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -117,7 +115,12 @@
             <version>3.4.1</version>
             <scope>test</scope>
         </dependency>
-
+	    <dependency>
+	        <groupId>com.google.code.findbugs</groupId>
+	        <artifactId>jsr305</artifactId>
+	        <version>2.0.2</version>
+	        <scope>provided</scope>
+	    </dependency>
 	</dependencies>
 
     <distributionManagement>
