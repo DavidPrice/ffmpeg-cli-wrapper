@@ -1,16 +1,19 @@
 package net.bramp.ffmpeg.builder;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
-import net.bramp.ffmpeg.probe.FFmpegProbeResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import net.bramp.ffmpeg.FFmpegUtils;
+import net.bramp.ffmpeg.probe.FFmpegProbeResult;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableList;
 
 /**
  * Builds a ffmpeg command line
@@ -132,7 +135,7 @@ public class FFmpegBuilder {
         args.add("-v", "error"); // TODO make configurable
 
         if (startOffset != null) {
-            args.add("-ss").add(String.format("%.3f", startOffset / 1000f));
+            args.add("-ss").add(FFmpegUtils.millisecondsToString(startOffset));
         }
 
         args.add("-i").add(input);

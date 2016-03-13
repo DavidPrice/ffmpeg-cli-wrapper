@@ -1,15 +1,21 @@
 package net.bramp.ffmpeg;
 
+import java.io.IOException;
+import java.io.Reader;
+
+import javax.annotation.Nonnull;
+
+import net.bramp.commons.lang3.math.gson.FractionAdapter;
+import net.bramp.ffmpeg.io.LoggingFilterReader;
+import net.bramp.ffmpeg.probe.FFmpegProbeResult;
+
+import org.apache.commons.lang3.math.Fraction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ImmutableList;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import net.bramp.commons.lang3.math.gson.FractionAdapter;
-import net.bramp.ffmpeg.probe.FFmpegProbeResult;
-import org.apache.commons.lang3.math.Fraction;
-
-import javax.annotation.Nonnull;
-import java.io.BufferedReader;
-import java.io.IOException;
 
 /**
  * Wrapper around FFprobe
@@ -19,6 +25,8 @@ import java.io.IOException;
  *
  */
 public class FFprobe {
+
+	final static Logger LOG = LoggerFactory.getLogger(FFprobe.class);
 
 	final Gson gson = setupGson();
 	
@@ -62,7 +70,12 @@ public class FFprobe {
 
 			.add(mediaPath);
 
-		BufferedReader reader = runFunc.run(args.build());
+		Reader reader = runFunc.run(args.build());
+
+		if (LOG.isDebugEnabled()) {
+			reader = new LoggingFilterReader(reader, LOG);
+		}
+
 		return gson.fromJson(reader, FFmpegProbeResult.class);
 	}
 }

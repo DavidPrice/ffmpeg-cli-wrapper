@@ -15,6 +15,7 @@ import org.apache.commons.lang3.math.Fraction;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static net.bramp.ffmpeg.FFmpegUtils.millisecondsToString;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
@@ -122,7 +123,7 @@ public class FFmpegOutputBuilder implements Cloneable {
 	}
 
 	public FFmpegOutputBuilder setVideoBitRate(int bit_rate) {
-		Preconditions.checkArgument(bit_rate > 0);
+		Preconditions.checkArgument(bit_rate > 0, "bitrate must be positive");
 		this.video_enabled  = true;
 		this.video_bit_rate = bit_rate;
 		return this;
@@ -183,7 +184,7 @@ public class FFmpegOutputBuilder implements Cloneable {
 	}
 
 	public FFmpegOutputBuilder setVideoWidth(int width) {
-		Preconditions.checkArgument(isValidSize(width), "Width must be valid greater than 0");
+		Preconditions.checkArgument(isValidSize(width), "Width must be -1 or greater than zero");
 
 		this.video_enabled = true;
 		this.video_width = width;
@@ -191,7 +192,7 @@ public class FFmpegOutputBuilder implements Cloneable {
 	}
 
 	public FFmpegOutputBuilder setVideoHeight(int height) {
-		Preconditions.checkArgument(isValidSize(height), "Height must be valid greater than 0");
+		Preconditions.checkArgument(isValidSize(height), "Height must be -1 or greater than zero");
 
 		this.video_enabled = true;
 		this.video_height = height;
@@ -200,7 +201,7 @@ public class FFmpegOutputBuilder implements Cloneable {
 
 	public FFmpegOutputBuilder setVideoResolution(int width, int height) {
 		Preconditions.checkArgument(isValidSize(width) && isValidSize(height),
-				"Both width and height must be valid resolutions");
+				"Both width and height must be -1 or greater than zero");
 
 		this.video_enabled = true;
 		this.video_width = width;
@@ -228,7 +229,7 @@ public class FFmpegOutputBuilder implements Cloneable {
 	}
 
 	public FFmpegOutputBuilder setAudioChannels(int channels) {
-		Preconditions.checkArgument(channels > 0);
+		Preconditions.checkArgument(channels > 0, "channels must be positive");
 		this.audio_enabled   = true;
 		this.audio_channels  = channels;
 		return this;
@@ -240,7 +241,7 @@ public class FFmpegOutputBuilder implements Cloneable {
 	 * @return this
 	 */
 	public FFmpegOutputBuilder setAudioSampleRate(int sample_rate) {
-		Preconditions.checkArgument(sample_rate > 0);
+		Preconditions.checkArgument(sample_rate > 0, "sample rate must be positive");
 		this.audio_enabled     = true;
 		this.audio_sample_rate = sample_rate;
 		return this;
@@ -266,13 +267,14 @@ public class FFmpegOutputBuilder implements Cloneable {
 	 * @return this
 	 */
 	public FFmpegOutputBuilder setAudioBitRate(int bit_rate) {
-		Preconditions.checkArgument(bit_rate > 0);
+		Preconditions.checkArgument(bit_rate > 0, "bitrate must be positive");
 		this.audio_enabled  = true;
 		this.audio_bit_rate = bit_rate;
 		return this;
 	}
 
 	public FFmpegOutputBuilder setAudioQuality(int quality) {
+		
 		Preconditions.checkArgument(quality > 0 && quality <= 7);
 		this.audio_enabled = true;
 		this.audio_quality = quality;
@@ -285,7 +287,7 @@ public class FFmpegOutputBuilder implements Cloneable {
 	 * @return this
 	 */
 	public FFmpegOutputBuilder setTargetSize(long targetSize) {
-		Preconditions.checkArgument(targetSize > 0);
+		Preconditions.checkArgument(targetSize > 0, "target size must be positive");
 		this.targetSize = targetSize;
 		return this;
 	}
@@ -331,7 +333,7 @@ public class FFmpegOutputBuilder implements Cloneable {
 	 * @return this
 	 */
 	public FFmpegOutputBuilder setPassPaddingBitrate(int bitrate) {
-		Preconditions.checkArgument(bitrate > 0);
+		Preconditions.checkArgument(bitrate > 0, "bitrate must be positive");
 		this.pass_padding_bitrate = bitrate;
 		return this;
 	}
@@ -397,17 +399,20 @@ public class FFmpegOutputBuilder implements Cloneable {
 			args.add("-f").add(format);
 		}
 
-        if (startOffset != null) {
-            // TODO Consider formatting into "hh:mm:ss[.xxx]"
-            args.add("-ss").add(String.format("%.3f", startOffset / 1000f));
+		if (startOffset != null) {
+			args.add("-ss").add(millisecondsToString(startOffset));
         }
 
-		if (duration != null) {
-			// TODO Consider formatting into "hh:mm:ss[.xxx]"
-			args.add("-t").add(String.format("%.3f", duration / 1000f));
+        if (duration != null) {
+			args.add("-t").add(millisecondsToString(duration));
 		}
 
+        
 		if (video_enabled) {
+
+			if (video_frames != null) {
+				args.add("-vframes").add(String.format("%d", video_frames));
+			}
 
 			if (!Strings.isNullOrEmpty(video_codec)) {
 				args.add("-vcodec").add(video_codec);
