@@ -55,6 +55,7 @@ public class FFmpegOutputBuilder implements Cloneable {
 	public String video_preset;
 	public String video_filter;
 	public int video_quality;
+	public String video_pixel_format;
 
 	public boolean subtitle_enabled = true;
 
@@ -218,6 +219,12 @@ public class FFmpegOutputBuilder implements Cloneable {
 	public FFmpegOutputBuilder setVideoFilter(String filter) {
 		this.video_enabled = true;
 		this.video_filter  = checkNotNull(filter);
+		return this;
+	}
+	
+	public FFmpegOutputBuilder setVideoPixelFormat(String format) {
+		this.video_enabled = true;
+		this.video_pixel_format = checkNotNull(format, "format must not be empty");
 		return this;
 	}
 
@@ -416,6 +423,10 @@ public class FFmpegOutputBuilder implements Cloneable {
 
 			if (!Strings.isNullOrEmpty(video_codec)) {
 				args.add("-vcodec").add(video_codec);
+			}
+			
+			if (!Strings.isNullOrEmpty(video_pixel_format)) {
+				args.add("-pix_fmt", video_pixel_format);
 			}
 
 			if (video_width != 0 && video_height != 0) {

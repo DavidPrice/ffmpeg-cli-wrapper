@@ -21,7 +21,7 @@ import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEqua
  * @author bramp
  *
  */
-public class FFmpegBuilderTest {
+public class FFmpegBuilderTest {    
 
 	public FFmpegBuilderTest() throws IOException {}
 
@@ -81,6 +81,20 @@ public class FFmpegBuilderTest {
 
 		List<String> args = builder.build();
 		assertThat(args, is(Arrays.asList("-y", "-v", "error", "-i", "input", "-vf", "scale='trunc(ow/a/2)*2:320'", "-an", "-sn", "output")));
+	}
+	
+	@Test
+	public void testVideoPixelFormat() {
+		FFmpegBuilder builder = new FFmpegBuilder()
+				.setInput("input")
+				.addOutput("output")
+				.disableAudio()
+				.disableSubtitle()
+				.setVideoPixelFormat("yuv420p")
+				.done();
+
+		List<String> args = builder.build();
+		assertThat(args, is(Arrays.asList("-y", "-v", "error", "-i", "input", "-pix_fmt", "yuv420p", "-an", "-sn", "output")));
 	}
 	
 	@Test

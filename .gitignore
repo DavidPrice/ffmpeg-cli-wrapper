@@ -12,3 +12,6 @@ buildNumber.properties
 # IntelliJ
 *.iml
 .idea/
+.classpath
+.project
+.settings/
